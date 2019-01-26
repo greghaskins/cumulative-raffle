@@ -5,16 +5,21 @@ import sys
 import fileinput
 import random
 
-def raffle(number_of_winners, entries):
+def raffle(number_of_winners, entries):   
     secure_random = random.SystemRandom()
     
     winners = set()
     hat = list(entries)
+
     while len(winners) < number_of_winners:
+        if len(hat) == 0:
+            raise ValueError("Not enough unique entries for {} winners".format(number_of_winners))
+
         index = secure_random.randrange(len(hat))
         winners.add(hat[index])
         del hat[index]
-    
+        
+
     return winners
 
 
