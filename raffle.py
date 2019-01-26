@@ -1,48 +1,55 @@
 #!/usr/bin/env python
-
-from __future__ import print_function
-import sys
-import fileinput
 import random
 
+# ------------------
+#  Raffle algorithm
+# ------------------
+
 def raffle(number_of_winners, entries):   
-    secure_random = random.SystemRandom()
-    
-    winners = set()
+    secure_random = random.SystemRandom() # uses os.urandom()
+
+    winners = set() # hold unique values only
     hat = list(entries)
 
     while len(winners) < number_of_winners:
-        if len(hat) == 0:
+        hat_size = len(hat)
+        if hat_size == 0:
             raise ValueError("Not enough unique entries for {} winners".format(number_of_winners))
 
-        index = secure_random.randrange(len(hat))
-        winners.add(hat[index])
-        del hat[index]
-        
+        random_index = secure_random.randrange(hat_size)
+        drawn_entry = hat.pop(random_index) # get and remove random_index
+        winners.add(drawn_entry)
 
     return winners
 
 
-if __name__ == '__main__':
-    try:
-        number_of_winners = int(sys.argv[1])
-        entry_files = sys.argv[2:]
-    except (IndexError, ValueError) as e:
-        print("""
-USAGE: raffle.py number_of_winners [entries_file...]
+# ------------------------
+#  Command-line interface
+# ------------------------
+
+USAGE="""USAGE: raffle.py number_of_winners [entries_file...]
 
     number_of_winners (required):
         The number of unique winners for the raffle
     entries_file (optional, repeated):
         Text file(s) with one raffle entry per line
-        If none given, entries will be read from standard input
-        Or you can specificy stdin explicitly with `-`
+        If none given, entries will be read from standard input (`-`)
                  
-        """, file=sys.stderr)
+"""
+
+if __name__ == '__main__':
+    import sys
+    import fileinput
+
+    try:
+        number_of_winners = int(sys.argv[1])
+        entry_files = sys.argv[2:]
+    except (IndexError, ValueError) as e:
+        sys.stderr.write(USAGE)
         sys.exit(1)
-    
+
     entries = [line.strip() for line in fileinput.input(files=entry_files)]
 
-    print("Selecting", number_of_winners, "winners from", entries, "...", file=sys.stderr)
+    sys.stderr.write("Selecting {} winners from {}...\n".format(number_of_winners, entries))
     winners = raffle(number_of_winners, entries)
     print("\n".join(winners))
