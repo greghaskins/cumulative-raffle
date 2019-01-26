@@ -3,9 +3,20 @@
 from __future__ import print_function
 import sys
 import fileinput
+import random
 
 def raffle(number_of_winners, entries):
-    return []
+    secure_random = random.SystemRandom()
+    
+    winners = set()
+    hat = list(entries)
+    while len(winners) < number_of_winners:
+        index = secure_random.randrange(len(hat))
+        winners.add(hat[index])
+        del hat[index]
+    
+    return winners
+
 
 if __name__ == '__main__':
     try:
