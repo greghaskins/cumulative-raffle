@@ -5,8 +5,8 @@ import random
 #  Raffle algorithm
 # ------------------
 
-def raffle(number_of_winners, entries):   
-    secure_random = random.SystemRandom() # uses os.urandom()
+def raffle(number_of_winners, entries, random_source):   
+    
 
     winners = set() # hold unique values only
     hat = list(entries)
@@ -16,7 +16,7 @@ def raffle(number_of_winners, entries):
         if hat_size == 0:
             raise ValueError("Not enough unique entries for {} winners".format(number_of_winners))
 
-        random_index = secure_random.randrange(hat_size)
+        random_index = random_source.randrange(hat_size)
         drawn_entry = hat.pop(random_index) # get and remove random_index
         winners.add(drawn_entry)
 
@@ -39,6 +39,7 @@ USAGE="""USAGE: raffle.py number_of_winners [entries_file...]
 
 if __name__ == '__main__':
     import sys
+    import os
     import fileinput
 
     try:
@@ -50,6 +51,9 @@ if __name__ == '__main__':
 
     entries = [line.strip() for line in fileinput.input(files=entry_files)]
 
+    seed = os.environ.get('RANDOM_SEED')
+    random_source = random.Random(seed) if seed else random.SystemRandom()
+
     sys.stderr.write("Selecting {} winners from {}...\n".format(number_of_winners, entries))
-    winners = raffle(number_of_winners, entries)
+    winners = raffle(number_of_winners, entries, random_source)
     print("\n".join(winners))
